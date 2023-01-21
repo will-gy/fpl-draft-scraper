@@ -69,4 +69,21 @@ class ManageDatabase:
 
         results = cursor.fetchall()
         return results
+    
+    def select_all_player_ids(self, table_name: str) -> List:
+        conn, cursor = self._connect_db()
+        with conn:
+            cursor.execute(
+                f'SELECT player_id from {table_name}'
+            )
+        return [item[0] for item in cursor.fetchall()]
+
+    def get_league_ids(self, table_name: str, league_size: int) -> List:
+        conn, cursor = self._connect_db()
+        with conn:
+            cursor.execute(
+                f'SELECT LEAGUEID from {table_name} WHERE LEAGUESIZE = {league_size}'
+            )
+
+        return [item[0] for item in cursor.fetchall()]
 

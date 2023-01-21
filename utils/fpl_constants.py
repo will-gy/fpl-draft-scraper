@@ -6,7 +6,7 @@ LEAGUE_ELEMENT_STATUS = 'https://draft.premierleague.com/api/league/1/element-st
 LEAGUE_TRANSACTIONS = 'https://draft.premierleague.com/api/draft/league/38838/transactions'
 # Initial draft picks by league
 LEAGUE_DRAFT_CHOICE = 'https://draft.premierleague.com/api/draft/1/choices'
-# Team per gameweek
+# Team per gameweek given a Team ID
 TEAM_OWNERSHIP_PER_GW = 'https://draft.premierleague.com/api/entry/38838/event/16'
 # TODO: Do this dynamically with decent accuracy
 TOTAL_LEAGUES = 252657

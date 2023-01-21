@@ -1,18 +1,19 @@
 import requests
-from typing import Dict
+from typing import Dict, List
 
 class ScrapeSingleLeague:
-    def __init__(self, league_id: int):
-        self.league_id = league_id
-        self.players_selected = self._get_selected_players()
+    @property
+    def league_id(self) -> int:
+        return self.league_id
 
-    def _get_selected_players(self) -> Dict[str, list]:
+    @classmethod
+    def get_selected_players(cls) -> List:
         """
         Returns a dictionary mapping team names to lists of player names for the
         league.
         """
         league_data = requests.get(
-            f'https://draft.premierleague.com/api/league/{self.league_id}/element-status'
+            f'https://draft.premierleague.com/api/league/{cls.league_id}/element-status'
             ).json()
         league_player_list = league_data.get('element_status')
         selected_player_id_list = [
@@ -20,3 +21,7 @@ class ScrapeSingleLeague:
                 if player.get('owner') is not None
                 ]
         return selected_player_id_list
+
+    
+    # TODO: Add methods to get league name, size, rank, total, gw points, gw rank, gw total, 
+    # gw transfers
