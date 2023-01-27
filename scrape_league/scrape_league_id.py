@@ -46,7 +46,7 @@ class ScrapeLeagueID:
             print("cannot add league id")
 
     async def _add_id(self, id: int, league_size: int) -> None:
-        # Adds id of any size, unlike add_valid_id
+        # Add league ID and corresponding league size to list
         self._valid_ids.append((id, league_size))
 
     def clear_valid_ids(self) -> None:
