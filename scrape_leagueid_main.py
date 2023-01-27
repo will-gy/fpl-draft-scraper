@@ -1,5 +1,9 @@
+"""
+Main script to scrape league ids
+
+Manages the scraping of league ids and updating the database
+"""
 import asyncio
-import platform
 import random
 from datetime import datetime
 from time import sleep
@@ -35,8 +39,8 @@ class ManageLeagueIDScrape:
     async def manage_update_league_id(self, request_n:int, table_name:str) -> None:
         # Break up request_n into chunks <= max_api_requests
         request_chunk = self._get_request_chunks(request_n)
-        for chunk in request_chunk:
-            print("new chunk")
+        for idx, chunk in enumerate(request_chunk):
+            print(f"new chunk {idx}")
             # Get list of leauge IDS in db
             time_now = datetime.now()
             id_search_list = self._random_league_id_sample(chunk, table_name)
@@ -82,7 +86,5 @@ if __name__ == '__main__':
     # Create fpldraft db and league table if not existing
     manage_data.db_setup('league')
 
-    if platform.system()=='Windows':
-        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-
-    asyncio.run(manage_data.manage_update_league_id(25000, 'league'))
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(manage_data.manage_update_league_id(10000, 'league'))
