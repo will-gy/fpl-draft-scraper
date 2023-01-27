@@ -16,7 +16,7 @@ from utils.fpl_constants import TOTAL_LEAGUES
 
 
 class ManageLeagueIDScrape:
-    def __init__(self, mange_database:ManageDatabase, scrape_league_id:ScrapeLeagueID) -> None:
+    def __init__(self, mange_database: ManageDatabase, scrape_league_id: ScrapeLeagueID) -> None:
         """Injecting ManageDatabase and ScrapeLeagueID instances
 
         Args:
@@ -26,7 +26,7 @@ class ManageLeagueIDScrape:
         self._manage_database = mange_database
         self._scrape_league_id = scrape_league_id
 
-    def db_setup(self, table_name:str) -> None:
+    def db_setup(self, table_name: str) -> None:
         try:
             self._manage_database.create_db()
         except Exception as e:
@@ -36,7 +36,7 @@ class ManageLeagueIDScrape:
         except Exception as e:
             print(e)
 
-    async def manage_update_league_id(self, request_n:int, table_name:str) -> None:
+    async def manage_update_league_id(self, request_n: int, table_name: str) -> None:
         # Break up request_n into chunks <= max_api_requests
         request_chunk = self._get_request_chunks(request_n)
         for idx, chunk in enumerate(request_chunk):
@@ -55,7 +55,7 @@ class ManageLeagueIDScrape:
             print(f"Time taken: {datetime.now()-time_now}")
             sleep(5)
 
-    def _get_request_chunks(self, request_total:int) -> List:
+    def _get_request_chunks(self, request_total: int) -> List:
         """Splits total request into chunks of size scrape_league_id.max_api_requests
 
         Args:
@@ -73,14 +73,14 @@ class ManageLeagueIDScrape:
             chunk_list.append(request_total%max_api)
         return chunk_list
     
-    def _random_league_id_sample(self, league_sample_n:int, table_name:str) -> List:
+    def _random_league_id_sample(self, league_sample_n: int, table_name: str) -> List:
         # existing_ids = self._manage_database.select_id(table_name)
         return random.sample(range(1, TOTAL_LEAGUES), league_sample_n) 
 
 
 if __name__ == '__main__':
     # manage_database = ManageDatabase('database/fpldraft')
-    scrape_league_id = ScrapeLeagueID(10)
+    scrape_league_id = ScrapeLeagueID()
     
     manage_data = ManageLeagueIDScrape(manage_database, scrape_league_id)
     # Create fpldraft db and league table if not existing

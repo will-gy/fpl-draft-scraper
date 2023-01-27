@@ -8,16 +8,12 @@ from aiohttp import ClientSession, TCPConnector
 
 
 class ScrapeLeagueID:
-    def __init__(self, league_team_size:int, max_api_requests:int=250) -> None:
+    def __init__(self, max_api_requests:int=250) -> None:
         """Init method
 
         Args:
-            league_team_size (int): Total number of teams in league to search for in sample e.g. 
-            10 team league
-            league_sample_n (int): Total number of leagues to scrape
             max_api_requests (int, optional): _description_. Defaults to 250.
         """
-        self._league_team_size = league_team_size
         self._fpl_league = 'https://draft.premierleague.com/api/league/'
         self._max_api_requests = max_api_requests
         self._valid_ids = []
@@ -42,19 +38,14 @@ class ScrapeLeagueID:
 
     async def _check_league_size(self, resp_json: Dict) -> None:
         try:
-            await self._add_any_id(
+            await self._add_id(
                 resp_json.get('league').get('id'), 
                 len(resp_json.get('league_entries', []))
                 )
         except:
             print("cannot add league id")
 
-    def add_valid_id(self, id: int) -> None:
-        # Appends tuple of valid id and leauge size to _valid_id list
-        # Depreciated
-        self._valid_ids.append((id, self._league_team_size))
-
-    async def _add_any_id(self, id: int, league_size: int) -> None:
+    async def _add_id(self, id: int, league_size: int) -> None:
         # Adds id of any size, unlike add_valid_id
         self._valid_ids.append((id, league_size))
 
