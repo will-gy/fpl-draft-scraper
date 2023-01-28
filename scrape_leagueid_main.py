@@ -79,7 +79,6 @@ class ManageLeagueIDScrape:
 
 
 if __name__ == '__main__':
-    # manage_database = ManageDatabase('database/fpldraft')
     scrape_league_id = ScrapeLeagueID()
     
     manage_data = ManageLeagueIDScrape(manage_database, scrape_league_id)

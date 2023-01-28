@@ -1,14 +1,14 @@
-from typing import List, Tuple
-import requests
+from typing import Dict, List, Tuple
+
+from aiohttp import ClientSession, TCPConnector
+
 
 class SingleGWTransfers:
-    @property
-    def league_id(self) -> int:
-        return self.league_id
-
     @classmethod
-    def get_league_transfers(cls, league_id: int, gameweek: int) -> Tuple[List, List]:
+    async def get_league_transfers(cls, league_id: int, gameweek: int) -> Tuple[List, List]:
         """Retrieves the waivers and free transfers for a given league and game week.
+        TODO: Distinguish between free transfers and waivers.
+        TODO: Update to take a list of leagues
         
         Args:
             league_id: The ID of the league.
@@ -19,15 +19,23 @@ class SingleGWTransfers:
             and game week.
         """
         url = "https://draft.premierleague.com/api/draft/league/{}/transactions".format(league_id)
-        response = requests.get(url)
-        if response.status_code != 200:
-            raise Exception("Error retrieving waivers and free transfers for league {} and \
-                game week {}: {}".format(league_id, gameweek, response.text))
 
+        connector = TCPConnector(limit=60)
+        async with ClientSession(connector=connector) as session:
+            async with session.get(url) as resp:
+                if resp.status == 200:
+                    data = await resp.json()
+                    return await cls._parse_league_transfers(data, gameweek)
+                else:
+                    raise Exception("Error retrieving waivers and free transfers for league {} and \
+                        game week {}: {}".format(league_id, gameweek, resp.text))
+
+    @classmethod
+    async def _parse_league_transfers(self, resp_json: Dict, gameweek: int) -> Tuple[List, List]:
         players_in = []
         players_out = []
 
-        for event in response.json().get('transactions'):
+        for event in resp_json.get('transactions'):
             if event.get('result') == 'a':
                 if event.get('event') == gameweek:
                     # TODO: Distinguish between free transfers and waivers
