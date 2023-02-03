@@ -36,9 +36,9 @@ class SingleGWTransfers:
         players_out = []
 
         for event in resp_json.get('transactions'):
-            if event.get('result') == 'a':
-                if event.get('event') == gameweek:
-                    # TODO: Distinguish between free transfers and waivers
+            if event.get('event') == gameweek:
+                if event.get('result') == 'a' and event.get('kind') == 'w':
+                    # TODO: Record free transfers as well as waivers
                     players_in.append(event.get('element_in'))
                     players_out.append(event.get('element_out'))
 
