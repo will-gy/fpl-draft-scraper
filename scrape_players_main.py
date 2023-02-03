@@ -1,5 +1,6 @@
-from scrape_league.scrape_fpl_players import FantasyFootballMetadata
 from app import manage_database
+from scrape_league.scrape_fpl_players import FantasyFootballMetadata
+
 
 def main() -> None:
     api = FantasyFootballMetadata()

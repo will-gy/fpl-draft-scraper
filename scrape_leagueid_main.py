@@ -22,7 +22,7 @@ class ManageLeagueIDScrape:
         Args:
             mange_database (ManageDatabase): _description_
             scrape_league_id (ScrapeLeagueID): _description_
-        """        
+        """
         self._manage_database = mange_database
         self._scrape_league_id = scrape_league_id
 
@@ -43,7 +43,7 @@ class ManageLeagueIDScrape:
             print(f"new chunk {idx}")
             # Get list of leauge IDS in db
             time_now = datetime.now()
-            id_search_list = self._random_league_id_sample(chunk, table_name)
+            id_search_list = self._random_league_id_sample(chunk)
             # Scrape league IDS
             await self._scrape_league_id.league_search_async(id_search_list)
             # Get valid ids just scraped
@@ -63,7 +63,7 @@ class ManageLeagueIDScrape:
 
         Returns:
             List: List of chunk sizes
-        """        
+        """
         max_api = self._scrape_league_id.max_api_requests
         if request_total <= max_api: return [request_total]
 
@@ -72,18 +72,18 @@ class ManageLeagueIDScrape:
         if request_total % max_api !=0:
             chunk_list.append(request_total%max_api)
         return chunk_list
-    
-    def _random_league_id_sample(self, league_sample_n: int, table_name: str) -> List:
+
+    def _random_league_id_sample(self, league_sample_n: int) -> List:
         # existing_ids = self._manage_database.select_id(table_name)
-        return random.sample(range(1, TOTAL_LEAGUES), league_sample_n) 
+        return random.sample(range(1, TOTAL_LEAGUES), league_sample_n)
 
 
 if __name__ == '__main__':
-    scrape_league_id = ScrapeLeagueID()
-    
-    manage_data = ManageLeagueIDScrape(manage_database, scrape_league_id)
+    scrape_league = ScrapeLeagueID()
+
+    manage_data = ManageLeagueIDScrape(manage_database, scrape_league)
     # Create fpldraft db and league table if not existing
     manage_data.db_setup('league')
 
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(manage_data.manage_update_league_id(10000, 'league'))
+    loop.run_until_complete(manage_data.manage_update_league_id(25000, 'league'))
