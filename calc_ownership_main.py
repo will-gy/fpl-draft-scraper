@@ -69,7 +69,7 @@ class LeagueStats:
         out = pd.merge(         
             self._player_df, ownership_count, right_index=True, left_on='id'
             )
-        return out.sort_values('ownership', ascending=False)
+        return out
     
     def transfers_df(self) -> pd.DataFrame:
         transfers_in_count = self._get_percentage(
@@ -85,7 +85,7 @@ class LeagueStats:
             transfers_df,
             self._player_df, left_index=True, right_on='id'
             )
-        return out.sort_values('transfers_in', ascending=False)
+        return out
     
     @property
     def player_ownership(self) -> Dict:
@@ -99,8 +99,11 @@ if __name__ == "__main__":
     league_stats = LeagueStats(league_ids)
     loop.run_until_complete(league_stats.populate_player_ownership_dict())
     ownership_df = league_stats.total_ownership_df()
-    ownership_df.to_csv('ownership.csv', index=False)
 
-    loop.run_until_complete(league_stats.populate_player_transfers_dict(gameweek=21))
+    loop.run_until_complete(league_stats.populate_player_transfers_dict(gameweek=22))
     transfers_df = league_stats.transfers_df()
-    transfers_df.to_csv('transfers.csv', index=False)
+    total_df = pd.merge(
+        ownership_df, transfers_df, on='id'
+        ).sort_values('transfers_in', ascending=False)
+
+    total_df.to_csv('transfers.csv', index=False, encoding='utf-8-sig')
