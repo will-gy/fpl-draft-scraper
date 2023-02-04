@@ -1,11 +1,12 @@
 import asyncio
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Optional, Tuple
 
 import pandas as pd
 
 from app import manage_database
 from scrape_league.scrape_league_players import ScrapeSingleLeague
 from scrape_league.scrape_league_transfers import SingleGWTransfers
+from scrape_league.scrape_team import TeamPlayers
 
 
 class LeagueStats:
@@ -104,5 +105,8 @@ if __name__ == "__main__":
     total_df = pd.merge(
         ownership_df_league, transfers_df_league, on=['id', 'Name', 'Club']
         ).sort_values('waivers_in', ascending=False)
+
+    team_players = TeamPlayers(league_id=38838)
+    total_df['Available in league'] = ~total_df['id'].isin(team_players.get_player_ids())
 
     total_df.to_csv('transfers.csv', index=False, encoding='utf-8-sig')
