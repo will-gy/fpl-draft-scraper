@@ -92,7 +92,7 @@ class LeagueStats:
         return self._player_ownership
 
 if __name__ == "__main__":
-    db_league_ids = manage_database.get_league_ids('league', 10)[:100]
+    db_league_ids = manage_database.get_league_ids('league', 10)
 
     loop = asyncio.get_event_loop()
 
