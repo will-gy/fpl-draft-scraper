@@ -14,6 +14,7 @@ class LeagueStats:
         # Currently gameweek is only used for transfers, not total ownership. Total ownership
         # is based on the most recent gameweek. TODO: Add ownership for previous gameweeks.
         self._league_ids = league_ids
+        self._failed_ids: List = []
 
         self._player_ids = self.get_player_ids()
         self._player_df = self._get_player_df()
@@ -41,6 +42,9 @@ class LeagueStats:
         for idx, league_id in enumerate(self._league_ids):
             print(f'Processing league transfers {idx+1}/{len(self._league_ids)}')
             transfers_in, transfers_out = await self._get_player_transfers(league_id, gameweek)
+            if not transfers_in and not transfers_out:
+                self._failed_ids.append(league_id)
+                continue
 
             for player_in, player_out in zip(transfers_in, transfers_out):
                 self._player_waivers_in[player_in].append(league_id)
@@ -58,7 +62,7 @@ class LeagueStats:
 
     def _get_percentage(self, input_dict: Dict, name: str) -> pd.Series:
         df = pd.DataFrame.from_dict(input_dict, orient='index')
-        df_count = df.count(axis=1)/len(self._league_ids)
+        df_count = df.count(axis=1)/(len(self._league_ids)-len(self._failed_ids))
         df_count.name = name
         return df_count
 
@@ -92,6 +96,7 @@ class LeagueStats:
         return self._player_ownership
 
 if __name__ == "__main__":
+    GAMEWEEK = 24
     db_league_ids = manage_database.get_league_ids('league', 10)
 
     loop = asyncio.get_event_loop()
@@ -100,7 +105,7 @@ if __name__ == "__main__":
     loop.run_until_complete(league_stats.populate_player_ownership_dict())
     ownership_df_league = league_stats.get_total_ownership_df()
 
-    loop.run_until_complete(league_stats.populate_player_transfers_dict(gameweek=22))
+    loop.run_until_complete(league_stats.populate_player_transfers_dict(gameweek=GAMEWEEK))
     transfers_df_league = league_stats.get_transfers_df()
     total_df = pd.merge(
         ownership_df_league, transfers_df_league, on=['id', 'Name', 'Club']
@@ -109,4 +114,4 @@ if __name__ == "__main__":
     team_players = TeamPlayers(league_id=38838)
     total_df['Available in league'] = ~total_df['id'].isin(team_players.get_player_ids())
 
-    total_df.to_csv('transfers.csv', index=False, encoding='utf-8-sig')
+    total_df.to_csv(f'transfers_GW{GAMEWEEK}.csv', index=False, encoding='utf-8-sig')

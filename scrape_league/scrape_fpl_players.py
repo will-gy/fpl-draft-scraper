@@ -13,13 +13,13 @@ class FantasyFootballMetadata:
         data = response.json()
         self.players = data.get("elements")
         self.teams = data.get("teams")
-    
+
     def _get_teams(self) -> None:
         for team in self.teams:
             team_id = team.get("id")
             team_name = team.get("name")
             self.team_names[team_id] = team_name
-    
+
     def get_player_names(self) -> List:
         self._get_data()
         self._get_teams()

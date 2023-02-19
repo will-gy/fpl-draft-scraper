@@ -8,7 +8,7 @@ class ManageDatabase:
 
     def create_db(self):
         sqlite3.connect(f"{self._db_name}.db")
-    
+
     def _connect_db(self):
         connection_obj = sqlite3.connect(f"{self._db_name}.db")
         cursor = connection_obj.cursor()
@@ -40,7 +40,7 @@ class ManageDatabase:
             )
             output = list(cursor)
         return cursor.fetchall()
-    
+
     def create_fpl_players_table(self, table_name:str) -> None:
         _, cursor = self._connect_db()
         table = (

@@ -17,7 +17,7 @@ class ScrapeLeagueID:
         self._fpl_league = 'https://draft.premierleague.com/api/league/'
         self._max_api_requests = max_api_requests
         self._valid_ids = []
-    
+
     async def league_search_async(self, league_id:List) -> None:
         """Searches for league ids and returns list of valid ids"""
         # Set socket limit to 60 as windows only allows max 64 in aysnc loop 
@@ -39,7 +39,7 @@ class ScrapeLeagueID:
     async def _check_league_size(self, resp_json: Dict) -> None:
         try:
             await self._add_id(
-                resp_json.get('league').get('id'), 
+                resp_json.get('league', {}).get('id', {}), 
                 len(resp_json.get('league_entries', []))
                 )
         except:
