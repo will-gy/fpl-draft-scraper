@@ -9,13 +9,13 @@ class SingleGWTransfers:
         """Retrieves the waivers and free transfers for a given league and game week.
         TODO: Distinguish between free transfers and waivers.
         TODO: Update to take a list of leagues
-        
+
         Args:
             league_id: The ID of the league.
             gameweek: The game week number.
-        
+
         Returns:
-            A dictionary containing the waivers and free transfers for the given league 
+            A dictionary containing the waivers and free transfers for the given league
             and game week.
         """
         url = "https://draft.premierleague.com/api/draft/league/{}/transactions".format(league_id)
@@ -27,18 +27,20 @@ class SingleGWTransfers:
                     data = await resp.json()
                     return await cls._parse_league_transfers(data, gameweek)
                 else:
-                    raise Exception("Error retrieving waivers and free transfers for league {} and \
+                    # TODO: Add retry with exponential backoff and logging
+                    print("Error retrieving waivers and free transfers for league {} and \
                         game week {}: {}".format(league_id, gameweek, resp.text))
+                    return [], []
 
     @classmethod
-    async def _parse_league_transfers(self, resp_json: Dict, gameweek: int) -> Tuple[List, List]:
+    async def _parse_league_transfers(cls, resp_json: Dict, gameweek: int) -> Tuple[List, List]:
         players_in = []
         players_out = []
 
-        for event in resp_json.get('transactions'):
-            if event.get('result') == 'a':
-                if event.get('event') == gameweek:
-                    # TODO: Distinguish between free transfers and waivers
+        for event in resp_json.get('transactions', []):
+            if event.get('event') == gameweek:
+                if event.get('result') == 'a' and event.get('kind') == 'w':
+                    # TODO: Record free transfers as well as waivers
                     players_in.append(event.get('element_in'))
                     players_out.append(event.get('element_out'))
 

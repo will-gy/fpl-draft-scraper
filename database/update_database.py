@@ -1,13 +1,14 @@
 import sqlite3
 from typing import List
 
+
 class ManageDatabase:
     def __init__(self, db_name:str) -> None:
         self._db_name = db_name
 
     def create_db(self):
         sqlite3.connect(f"{self._db_name}.db")
-    
+
     def _connect_db(self):
         connection_obj = sqlite3.connect(f"{self._db_name}.db")
         cursor = connection_obj.cursor()
@@ -39,7 +40,7 @@ class ManageDatabase:
             )
             output = list(cursor)
         return cursor.fetchall()
-    
+
     def create_fpl_players_table(self, table_name:str) -> None:
         _, cursor = self._connect_db()
         table = (
@@ -58,7 +59,7 @@ class ManageDatabase:
                 f'INSERT or IGNORE into {table_name} (player_id, name, team_name) \
                     values (?,?,?)', data
                 )
-    
+
     def select_player_details(self, table_name:str, player_ids:List) -> List:
         conn, cursor = self._connect_db()
         with conn:
@@ -69,7 +70,7 @@ class ManageDatabase:
 
         results = cursor.fetchall()
         return results
-    
+
     def select_all_player_ids(self, table_name: str) -> List:
         conn, cursor = self._connect_db()
         with conn:
@@ -86,4 +87,3 @@ class ManageDatabase:
             )
 
         return [item[0] for item in cursor.fetchall()]
-
