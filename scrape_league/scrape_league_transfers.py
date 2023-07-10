@@ -27,8 +27,10 @@ class SingleGWTransfers:
                     data = await resp.json()
                     return await cls._parse_league_transfers(data, gameweek)
                 else:
-                    raise Exception("Error retrieving waivers and free transfers for league {} and \
+                    # TODO: Add retry with exponential backoff and logging
+                    print("Error retrieving waivers and free transfers for league {} and \
                         game week {}: {}".format(league_id, gameweek, resp.text))
+                    return [], []
 
     @classmethod
     async def _parse_league_transfers(cls, resp_json: Dict, gameweek: int) -> Tuple[List, List]:
