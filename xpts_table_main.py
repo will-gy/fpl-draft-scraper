@@ -21,7 +21,7 @@ def plot_table(league_table: pd.DataFrame, gw: int) -> None:
 def main() -> None:
     team, team_results = ScrapeSingleLeague.get_league_results(38838)
     league_table = ScrapeSingleLeague.get_league_table(team, team_results)
-    plot_table(league_table, 24)
+    plot_table(league_table, 38)
 
 if __name__ == "__main__":
     main()

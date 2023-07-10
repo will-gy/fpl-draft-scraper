@@ -96,7 +96,7 @@ class LeagueStats:
         return self._player_ownership
 
 if __name__ == "__main__":
-    GAMEWEEK = 24
+    GAMEWEEK = 38
     db_league_ids = manage_database.get_league_ids('league', 10)
 
     loop = asyncio.get_event_loop()
