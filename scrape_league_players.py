@@ -1,3 +1,5 @@
+# DEPRECATE THIS FILE
+
 from typing import List
 
 from scrape_league.scrape_league_players import ScrapeSingleLeague

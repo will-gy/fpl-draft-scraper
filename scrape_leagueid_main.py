@@ -39,11 +39,14 @@ class ManageLeagueIDScrape:
     async def manage_update_league_id(self, request_n: int, table_name: str) -> None:
         # Break up request_n into chunks <= max_api_requests
         request_chunk = self._get_request_chunks(request_n)
+        start_id = self._manage_database.get_max_league_id(table_name)
+        # Iterate through chunks
         for idx, chunk in enumerate(request_chunk):
             print(f"new chunk {idx}")
             # Get list of leauge IDS in db
             time_now = datetime.now()
-            id_search_list = self._random_league_id_sample(chunk)
+            # id_search_list = self._random_league_id_sample(chunk)
+            id_search_list = self._get_sequential_league_id(start_id, chunk, idx)
             # Scrape league IDS
             await self._scrape_league_id.league_search_async(id_search_list)
             # Get valid ids just scraped
@@ -77,6 +80,11 @@ class ManageLeagueIDScrape:
         # existing_ids = self._manage_database.select_id(table_name)
         return random.sample(range(1, TOTAL_LEAGUES), league_sample_n)
 
+    @staticmethod
+    def _get_sequential_league_id(start_id: int, chunk_size: int, chunk_idx: int) -> list[int]:
+        # end = start_id + (chunk_size * chunk_idx) - 1
+        return list(range(start_id, start_id + (chunk_size * (chunk_idx + 1)) - 1))
+
 
 if __name__ == '__main__':
     scrape_league = ScrapeLeagueID()
@@ -86,4 +94,5 @@ if __name__ == '__main__':
     manage_data.db_setup('league')
 
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(manage_data.manage_update_league_id(25000, 'league'))
+    # TODO: Add run until last league ID
+    loop.run_until_complete(manage_data.manage_update_league_id(10000, 'league'))
