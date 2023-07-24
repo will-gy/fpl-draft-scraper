@@ -87,3 +87,13 @@ class ManageDatabase:
             )
 
         return [item[0] for item in cursor.fetchall()]
+
+    def get_max_league_id(self, table_name: str) -> int:
+        conn, cursor = self._connect_db()
+        with conn:
+            cursor.execute(
+                f'SELECT MAX(LEAGUEID) from {table_name}'
+            )
+
+        res = cursor.fetchone()[0]
+        return res if res else 0
