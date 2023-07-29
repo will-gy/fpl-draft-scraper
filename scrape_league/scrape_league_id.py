@@ -28,7 +28,7 @@ class ScrapeLeagueID:
             for _id in league_id:
                 tasks.append(asyncio.ensure_future(self._fetch(session, _id)))
             await asyncio.gather(*tasks)
-    
+
     async def _fetch(self, session: ClientSession, _id) -> None:
         url = f'{self._fpl_league}{_id}/details'
         async with session.get(url) as resp:
@@ -39,7 +39,7 @@ class ScrapeLeagueID:
     async def _check_league_size(self, resp_json: Dict) -> None:
         try:
             await self._add_id(
-                resp_json.get('league', {}).get('id', {}), 
+                resp_json.get('league', {}).get('id', {}),
                 len(resp_json.get('league_entries', []))
                 )
         except:
@@ -55,7 +55,7 @@ class ScrapeLeagueID:
     @property
     def valid_ids(self) -> List:
         return self._valid_ids
-    
+
     @property
     def max_api_requests(self) -> int:
         return self._max_api_requests
