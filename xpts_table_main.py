@@ -1,7 +1,7 @@
 import pandas as pd
 import plotly.graph_objects as go
 
-from scrape_league_players import ScrapeSingleLeague
+from scrape_league.scrape_league_players import ScrapeSingleLeague
 
 
 def plot_table(league_table: pd.DataFrame, gw: int) -> None:
