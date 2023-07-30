@@ -1,6 +1,7 @@
 import asyncio
 from datetime import datetime
 from time import sleep
+import pandas as pd
 
 from aiohttp import ClientSession, TCPConnector
 
@@ -68,17 +69,16 @@ class DraftRank:
         try:
             print(f"Checking league {league_id}")
             choices = resp_json.get('choices', [])
-            print(choices)
-            picks = [(pick.get('index'), pick.get('element')) for pick in choices]
+            picks = {pick.get('index'): pick.get('element') for pick in choices}
             await self._add_picks(league_id, picks)
         except:
             print(f"Cannot add picks {league_id}")
 
-    async def _add_picks(self, league_id: int, league_picks: list[tuple[int, int]]) -> None:
+    async def _add_picks(self, league_id: int, league_picks: dict[int, int]) -> None:
         self._draft_picks[league_id] = league_picks
 
     @property
-    def get_draft_picks(self) -> dict[int, list[tuple[int, int]]]:
+    def get_draft_picks(self) -> dict[int, dict[int, int]]:
         return self._draft_picks
 
     @property
@@ -87,27 +87,41 @@ class DraftRank:
 
 
 class ManageDraftScrapeSequential:
+    def __init__(
+            self, manage_db: ManageDatabase, draft_rank: DraftRank, league_ids: list[int],
+            max_api_req: int=250
+            ) -> None:
+        self._manage_database: ManageDatabase = manage_db
+        self._draft_rank: DraftRank = draft_rank
+        self._player_ids: list[int] = self.get_player_ids()
+        self._player_picks: dict = self._get_player_dict()
+        self._player_df: pd.DataFrame = self._get_player_df()
+        self._league_ids: list[int] = league_ids
+        self._max_api_requests: int = max_api_req
+
     @staticmethod
-    def _get_sequential_league_id(start_id: int, chunk_size: int, chunk_idx: int) -> list[int]:
-        return list(range(start_id, start_id + (chunk_size * (chunk_idx + 1)) - 1))
+    def get_player_ids() -> list[int]:
+        return manage_database.select_all_player_ids('players')
 
-    def __init__(self, manage_database: ManageDatabase, draft_rank: DraftRank) -> None:
-        self._manage_database = manage_database
-        self._draft_rank = draft_rank
-        self._max_api_requests = 250
+    def _get_player_dict(self) -> dict[int, list[int]]:
+        return {player_id: [] for player_id in self._player_ids}
 
-    def _get_request_chunks(self, league_ids: list[int]) -> list[list[int]]:
+    async def populate_player_draft_dict(self, league_id: dict[int, dict[int, int]]) -> None:
+        for picks in league_id.values():
+            for idx, player_id in picks.items():
+                self._player_picks[player_id].append(idx)
+
+    def _get_request_chunks(self) -> list[list[int]]:
         return [
-            league_ids[i * self._max_api_requests:(i + 1) * self._max_api_requests] for i in \
-                range((len(league_ids) + self._max_api_requests - 1) // self._max_api_requests)
+            self._league_ids[i * self._max_api_requests:(i + 1) * self._max_api_requests] for i in \
+                range(
+                    (len(self._league_ids) + self._max_api_requests - 1) // self._max_api_requests
+                    )
                 ]
 
-    async def manage_draft_picks(self, table_name: str) -> dict[int, list[tuple[int, int]]]:
+    async def manage_draft_picks(self) -> None:
         # Break up request_n into chunks <= max_api_requests
-        league_ids = self._manage_database.get_league_ids(table_name, 10)
-        request_chunk = self._get_request_chunks(league_ids)
-
-        draft_dict = {}
+        request_chunk = self._get_request_chunks()
 
         for chunk in request_chunk:
             print(f"new chunk")
@@ -121,15 +135,43 @@ class ManageDraftScrapeSequential:
                 continue
             else:
                 await self._draft_rank.get_draft_choice(valid_ids)
-                draft_dict.update(self._draft_rank.get_draft_picks)
+                # draft_dict.update(self._draft_rank.get_draft_picks)
+                await self.populate_player_draft_dict(self._draft_rank.get_draft_picks)
                 print(f"Time taken: {datetime.now()-time_now}")
                 sleep(10)
-        return draft_dict
+
+    def _get_player_df(self) -> pd.DataFrame:
+        player_tuple = manage_database.select_player_details('players', list(self._player_ids))
+        return pd.DataFrame(player_tuple, columns=['id', 'Name', 'Club', 'Position', 'Drank Rank'])
+
+    def get_pick_df(self) -> pd.DataFrame:
+        pick_avg = self._get_mean(
+            self._player_picks, 'Average Pick'
+            )
+        out = pd.merge(
+            self._player_df, pick_avg, right_index=True, left_on='id'
+            )
+        return out
+
+    @staticmethod
+    def _get_mean(input_dict: dict[int, list[int]], name: str) -> pd.Series:
+        df = pd.DataFrame.from_dict(input_dict, orient='index')
+        average_pick = df.mean(axis=1)
+        average_pick.name = name
+        return average_pick
+
 
 if __name__ == '__main__':
     draft_pick = DraftRank()
+    db_league_ids = manage_database.get_league_ids('league', 10)
+    # db_league_ids = manage_database.get_league_ids_all('league')
 
-    manage_data = ManageDraftScrapeSequential(manage_database, draft_pick)
+    manage_data = ManageDraftScrapeSequential(manage_database, draft_pick, db_league_ids)
 
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(manage_data.manage_draft_picks('league'))
+    # Scrape draft picks
+    loop.run_until_complete(manage_data.manage_draft_picks())
+    # Calculate pick averages
+    pick_df = manage_data.get_pick_df()
+
+    pick_df.to_csv(f'Pick Average.csv', index=False, encoding='utf-8-sig')
