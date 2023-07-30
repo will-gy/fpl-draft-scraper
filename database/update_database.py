@@ -48,7 +48,8 @@ class ManageDatabase:
             player_id INTEGER PRIMARY KEY,
             name TEXT, 
             team_name TEXT,
-            position TEXT
+            position TEXT,
+            draft_rank INTEGER
             )"""
             )
         cursor.execute(table)
@@ -58,8 +59,8 @@ class ManageDatabase:
         conn, cursor = self._connect_db()
         with conn:
             cursor.executemany(
-                f'INSERT or IGNORE into {table_name} (player_id, name, team_name, position) \
-                    values (?,?,?,?)', data
+                f'INSERT or IGNORE into {table_name} (player_id, name, team_name, position, draft_rank) \
+                    values (?,?,?,?,?)', data
                 )
 
     def select_player_details(
