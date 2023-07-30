@@ -70,7 +70,7 @@ class ManageDatabase:
         with conn:
             # Query the table
             cursor.execute('''
-            SELECT player_id, name, team_name, position FROM {} WHERE player_id IN ({})
+            SELECT player_id, name, team_name, position, draft_rank FROM {} WHERE player_id IN ({})
             '''.format(table_name, ','.join(['?'] * len(player_ids))), player_ids)
 
         results = cursor.fetchall()
@@ -89,6 +89,15 @@ class ManageDatabase:
         with conn:
             cursor.execute(
                 f'SELECT LEAGUEID from {table_name} WHERE LEAGUESIZE = {league_size}'
+            )
+
+        return [item[0] for item in cursor.fetchall()]
+
+    def get_league_ids_all(self, table_name: str) -> list[int]:
+        conn, cursor = self._connect_db()
+        with conn:
+            cursor.execute(
+                f'SELECT LEAGUEID from {table_name}'
             )
 
         return [item[0] for item in cursor.fetchall()]
