@@ -162,7 +162,12 @@ class ManageDraftScrapeSequential:
 
     @staticmethod
     def _get_mean(input_dict: dict[int, list[int]], name: str) -> pd.Series:
+        # TODO: Make this more efficient, currently very slow due to number of columns
         df = pd.DataFrame.from_dict(input_dict, orient='index')
+        draft_total = len(df.columns)
+        df['Count'] = df.count(axis=1)
+        # Remove players who were drafted in less than 1/4 of drafts
+        df = df[df['Count'] > draft_total // 4]
         average_pick = df.mean(axis=1)
         average_pick.name = name
         return average_pick
