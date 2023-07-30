@@ -67,7 +67,6 @@ class DraftRank:
 
     async def _get_league_choices(self, league_id: int, resp_json: dict) -> None:
         try:
-            print(f"Checking league {league_id}")
             choices = resp_json.get('choices', [])
             picks = {pick.get('index'): pick.get('element') for pick in choices}
             await self._add_picks(league_id, picks)
@@ -84,6 +83,10 @@ class DraftRank:
     @property
     def get_valid_league_ids(self) -> list[int]:
         return self._valid_league_ids
+
+    @get_valid_league_ids.setter
+    def get_valid_league_ids(self, league_ids: list[int]) -> None:
+        self._valid_league_ids = league_ids
 
 
 class ManageDraftScrapeSequential:
@@ -123,19 +126,21 @@ class ManageDraftScrapeSequential:
         # Break up request_n into chunks <= max_api_requests
         request_chunk = self._get_request_chunks()
 
-        for chunk in request_chunk:
-            print(f"new chunk")
+        for idx, chunk in enumerate(request_chunk):
+            print(f"new chunk {idx + 1}")
             time_now = datetime.now()
+            # Reset valid league ids
+            self._draft_rank.get_valid_league_ids = []
             # Scrape league IDS
             await self._draft_rank.check_valid_league_ids(chunk)
             valid_ids = self._draft_rank.get_valid_league_ids
+
             if not valid_ids:
                 print("No valid ids found")
                 sleep(5)
                 continue
             else:
                 await self._draft_rank.get_draft_choice(valid_ids)
-                # draft_dict.update(self._draft_rank.get_draft_picks)
                 await self.populate_player_draft_dict(self._draft_rank.get_draft_picks)
                 print(f"Time taken: {datetime.now()-time_now}")
                 sleep(10)
@@ -163,8 +168,8 @@ class ManageDraftScrapeSequential:
 
 if __name__ == '__main__':
     draft_pick = DraftRank()
-    db_league_ids = manage_database.get_league_ids('league', 10)
-    # db_league_ids = manage_database.get_league_ids_all('league')
+    # db_league_ids = manage_database.get_league_ids('league', 10)
+    db_league_ids = manage_database.get_league_ids_all('league')
 
     manage_data = ManageDraftScrapeSequential(manage_database, draft_pick, db_league_ids)
 
