@@ -131,4 +131,4 @@ if __name__ == '__main__':
     manage_data.db_setup('league')
 
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(manage_data.manage_update_league_id(10000, 'league'))
+    loop.run_until_complete(manage_data.manage_update_league_id(100000, 'league'))

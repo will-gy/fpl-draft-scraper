@@ -155,7 +155,9 @@ class ManageDraftScrapeSequential:
             )
         out = pd.merge(
             self._player_df, pick_avg, right_index=True, left_on='id'
-            )
+            ).sort_values('Average Pick')
+        # TODO: Calculate true average by position, rather than ranking on average
+        out['Rank By Position'] = out.groupby('Position')['Average Pick'].rank(ascending=True)
         return out
 
     @staticmethod
@@ -179,4 +181,4 @@ if __name__ == '__main__':
     # Calculate pick averages
     pick_df = manage_data.get_pick_df()
 
-    pick_df.to_csv(f'Pick Average.csv', index=False, encoding='utf-8-sig')
+    pick_df.to_csv(f'Pick Average All.csv', index=False, encoding='utf-8-sig')
