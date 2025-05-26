@@ -58,7 +58,7 @@ class LeagueStats:
 
     def _get_player_df(self) -> pd.DataFrame:
         player_tuple = manage_database.select_player_details('players', list(self._player_ids))
-        return pd.DataFrame(player_tuple, columns=['id', 'Name', 'Club'])
+        return pd.DataFrame(player_tuple, columns=['id', 'Name', 'Club', 'Position', 'Draft Rank'])
 
     def _get_percentage(self, input_dict: Dict, name: str) -> pd.Series:
         df = pd.DataFrame.from_dict(input_dict, orient='index')
@@ -96,8 +96,9 @@ class LeagueStats:
         return self._player_ownership
 
 if __name__ == "__main__":
-    GAMEWEEK = 38
-    db_league_ids = manage_database.get_league_ids('league', 10)
+    GAMEWEEK = 19
+    LEAGUE_SIZE = 10
+    db_league_ids = manage_database.get_league_ids('league', LEAGUE_SIZE)
 
     loop = asyncio.get_event_loop()
 
@@ -111,7 +112,7 @@ if __name__ == "__main__":
         ownership_df_league, transfers_df_league, on=['id', 'Name', 'Club']
         ).sort_values('waivers_in', ascending=False)
 
-    team_players = TeamPlayers(league_id=38838)
+    team_players = TeamPlayers(league_id=54)
     total_df['Available in league'] = ~total_df['id'].isin(team_players.get_player_ids())
 
     total_df.to_csv(f'transfers_GW{GAMEWEEK}.csv', index=False, encoding='utf-8-sig')

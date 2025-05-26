@@ -48,7 +48,8 @@ class ManageDatabase:
             player_id INTEGER PRIMARY KEY,
             name TEXT, 
             team_name TEXT,
-            position TEXT
+            position TEXT,
+            draft_rank INTEGER
             )"""
             )
         cursor.execute(table)
@@ -58,8 +59,8 @@ class ManageDatabase:
         conn, cursor = self._connect_db()
         with conn:
             cursor.executemany(
-                f'INSERT or IGNORE into {table_name} (player_id, name, team_name, position) \
-                    values (?,?,?,?)', data
+                f'INSERT or IGNORE into {table_name} (player_id, name, team_name, position, draft_rank) \
+                    values (?,?,?,?,?)', data
                 )
 
     def select_player_details(
@@ -69,7 +70,7 @@ class ManageDatabase:
         with conn:
             # Query the table
             cursor.execute('''
-            SELECT player_id, name, team_name, position FROM {} WHERE player_id IN ({})
+            SELECT player_id, name, team_name, position, draft_rank FROM {} WHERE player_id IN ({})
             '''.format(table_name, ','.join(['?'] * len(player_ids))), player_ids)
 
         results = cursor.fetchall()
@@ -90,6 +91,23 @@ class ManageDatabase:
                 f'SELECT LEAGUEID from {table_name} WHERE LEAGUESIZE = {league_size}'
             )
 
+        return [item[0] for item in cursor.fetchall()]
+
+    def get_league_ids_all(self, table_name: str) -> list[int]:
+        conn, cursor = self._connect_db()
+        with conn:
+            cursor.execute(
+                f'SELECT LEAGUEID from {table_name}'
+            )
+
+        return [item[0] for item in cursor.fetchall()]
+
+    def get_league_ids_range(self, table_name: str, min_size: int, max_size: int) -> list[int]:
+        conn, cursor = self._connect_db()
+        with conn:
+            cursor.execute(
+                f'SELECT LEAGUEID from {table_name} WHERE LEAGUESIZE BETWEEN {min_size} AND {max_size}'
+            )
         return [item[0] for item in cursor.fetchall()]
 
     def get_max_league_id(self, table_name: str) -> int:

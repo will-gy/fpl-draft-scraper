@@ -1,3 +1,8 @@
+"""
+Scrapes the FPL API for the selected players in a given league. Used for calculating player ownership.
+TODO: Remove league result & table scraping methods from this class.
+"""
+
 from typing import Dict, List, Optional, Tuple
 
 import pandas as pd
@@ -6,6 +11,7 @@ from aiohttp import ClientSession, TCPConnector
 
 
 class ScrapeSingleLeague:
+    # TODO: These methods should be static
     @classmethod
     async def get_selected_players(cls, league_id: int) -> Optional[List[int]]:
         """
@@ -88,6 +94,7 @@ class ScrapeSingleLeague:
     def get_league_table(cls, team_info: Dict, league_results: Dict) -> pd.DataFrame:
         """
         Returns a pandas DataFrame of the league table for the given league.
+        TODO: Clean up this method
         """
         league_table = {}
         for team_id, team_info in team_info.items():

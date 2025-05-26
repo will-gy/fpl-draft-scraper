@@ -1,3 +1,7 @@
+"""
+Given a particular FPL H2H league ID, this script will scrape the league results and table for the
+given gameweek and plot the table as well as xPts total so far in the season.
+"""
 import pandas as pd
 import plotly.graph_objects as go
 

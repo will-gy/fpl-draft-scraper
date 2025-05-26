@@ -1,3 +1,7 @@
+"""
+Responsible for updating the table of footballers in the database
+TODO: Add functionality to update players clubs if they are transferred mid season
+"""
 from dataclasses import dataclass
 
 import requests
@@ -51,7 +55,9 @@ class FantasyFootballMetadata:
             name = player.get("web_name")
             team_id = player.get("team")
             position_id = player.get("element_type")
+            draft_rank = player.get("draft_rank")
             team_name = self.team_names[team_id]
             position_name = self.position_names[position_id]
-            player_data.append((player_id, name, team_name, position_name))
+
+            player_data.append((player_id, name, team_name, position_name, draft_rank))
         return player_data

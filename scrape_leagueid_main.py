@@ -7,7 +7,7 @@ import asyncio
 import random
 from abc import ABC, abstractmethod
 from datetime import datetime
-from time import sleep
+from asyncio import sleep
 from typing import List
 
 from app import manage_database
@@ -120,7 +120,7 @@ class ManageLeagueScrapeSequential(ManageLeagueIDScrape):
             # Once added clear valid_id list
             self._scrape_league_id.clear_valid_ids()
             print(f"Time taken: {datetime.now()-time_now}")
-            sleep(10)
+            await sleep(10)
 
 
 if __name__ == '__main__':
@@ -131,4 +131,4 @@ if __name__ == '__main__':
     manage_data.db_setup('league')
 
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(manage_data.manage_update_league_id(10000, 'league'))
+    loop.run_until_complete(manage_data.manage_update_league_id(33000, 'league'))
