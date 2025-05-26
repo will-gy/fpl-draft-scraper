@@ -1,3 +1,8 @@
+"""
+Scrapes the FPL API for the selected players in a given league. Used for calculating player ownership.
+TODO: Remove league result & table scraping methods from this class.
+"""
+
 from typing import Dict, List, Optional, Tuple
 
 import pandas as pd

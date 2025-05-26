@@ -1,3 +1,8 @@
+"""
+This class calculates the average draft order that players are selected in a league, based on a 
+list of league IDs.
+"""
+
 import asyncio
 from datetime import datetime
 from time import sleep
@@ -166,8 +171,8 @@ class ManageDraftScrapeSequential:
         df = pd.DataFrame.from_dict(input_dict, orient='index')
         draft_total = len(df.columns)
         df['Count'] = df.count(axis=1)
-        # Remove players who were drafted in less than 1/4 of drafts
-        df = df[df['Count'] > draft_total // 4]
+        # Remove players who were drafted in less than 2% of drafts
+        df = df[df['Count'] > draft_total // 50]
         average_pick = df.mean(axis=1)
         average_pick.name = name
         return average_pick
@@ -176,7 +181,8 @@ class ManageDraftScrapeSequential:
 if __name__ == '__main__':
     draft_pick = DraftRank()
     # db_league_ids = manage_database.get_league_ids('league', 10)
-    db_league_ids = manage_database.get_league_ids_all('league')
+    # db_league_ids = manage_database.get_league_ids_all('league')#
+    db_league_ids = manage_database.get_league_ids_range('league', 6, 16)
 
     manage_data = ManageDraftScrapeSequential(manage_database, draft_pick, db_league_ids)
 
@@ -186,4 +192,4 @@ if __name__ == '__main__':
     # Calculate pick averages
     pick_df = manage_data.get_pick_df()
 
-    pick_df.to_csv(f'Pick Average All.csv', index=False, encoding='utf-8-sig')
+    pick_df.to_csv(f'Pick Average All 10perc.csv', index=False, encoding='utf-8-sig')

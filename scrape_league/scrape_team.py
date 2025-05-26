@@ -1,5 +1,7 @@
 """
 Scrapes players from the FPL API for an individual team ID in a league.
+
+TODO: This diuplicates get_selected_players() in scrape_league_players.py so remove this class.
 """
 from typing import List
 import requests

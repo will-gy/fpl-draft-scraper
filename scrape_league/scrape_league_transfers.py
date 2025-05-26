@@ -1,3 +1,8 @@
+"""
+This class is responsible for retrieving the waivers and free transfers for an individual league
+and game week. It is used by the LeagueStats class to populate the player_waivers_in and 
+player_waivers_out dictionaries when looping through a list of leagues to track transfers.
+"""
 from typing import Dict, List, Tuple
 
 from aiohttp import ClientSession, TCPConnector

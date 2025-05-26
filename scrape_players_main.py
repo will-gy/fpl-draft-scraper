@@ -1,3 +1,7 @@
+"""
+This retrieves the players from the FPL API and stores them in the players table.
+"""
+
 from app import manage_database
 from scrape_league.scrape_fpl_players import FantasyFootballMetadata
 

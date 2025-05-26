@@ -102,6 +102,14 @@ class ManageDatabase:
 
         return [item[0] for item in cursor.fetchall()]
 
+    def get_league_ids_range(self, table_name: str, min_size: int, max_size: int) -> list[int]:
+        conn, cursor = self._connect_db()
+        with conn:
+            cursor.execute(
+                f'SELECT LEAGUEID from {table_name} WHERE LEAGUESIZE BETWEEN {min_size} AND {max_size}'
+            )
+        return [item[0] for item in cursor.fetchall()]
+
     def get_max_league_id(self, table_name: str) -> int:
         conn, cursor = self._connect_db()
         with conn:

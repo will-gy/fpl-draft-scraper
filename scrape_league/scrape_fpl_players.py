@@ -1,3 +1,7 @@
+"""
+Responsible for updating the table of footballers in the database
+TODO: Add functionality to update players clubs if they are transferred mid season
+"""
 from dataclasses import dataclass
 
 import requests

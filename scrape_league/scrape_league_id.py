@@ -1,5 +1,6 @@
 """
 ScrapeLeagueID class. Scrapes chunks of league ids and ids as well as league size
+Used when populating leagues in database
 """
 import asyncio
 from typing import Dict, List
